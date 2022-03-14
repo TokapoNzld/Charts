@@ -432,18 +432,27 @@ open class PieChartRenderer: NSObject, DataRenderer
                     let pt1 = CGPoint(
                         x: labelRadius * (1 + valueLineLength1) * sliceXBase + center.x,
                         y: labelRadius * (1 + valueLineLength1) * sliceYBase + center.y)
-
+                    
+                    var ellipseRect = CGRect()
+                    let labelWidth = UILabel.textWidth(font: valueFont, text: valueText)
+                    
                     if transformedAngle.truncatingRemainder(dividingBy: 360.0) >= 90.0 && transformedAngle.truncatingRemainder(dividingBy: 360.0) <= 270.0
                     {
                         pt2 = CGPoint(x: pt1.x - polyline2Length, y: pt1.y)
                         align = .right
-                        labelPoint = CGPoint(x: pt2.x - 5, y: pt2.y - lineHeight)
+                        
+                        labelPoint = CGPoint(x: pt2.x+labelWidth-5, y: pt2.y-lineHeight*2)
+                        
+                        ellipseRect = CGRect(x: pt2.x-15, y: pt2.y-5, width: 10, height: 10)
                     }
                     else
                     {
                         pt2 = CGPoint(x: pt1.x + polyline2Length, y: pt1.y)
                         align = .left
-                        labelPoint = CGPoint(x: pt2.x + 5, y: pt2.y - lineHeight)
+                        
+                        labelPoint = CGPoint(x: pt2.x-labelWidth+5, y: pt2.y-lineHeight*2)
+                        
+                        ellipseRect = CGRect(x: pt2.x+5, y: pt2.y-5, width: 10, height: 10)
                     }
 
                     DrawLine: do
@@ -461,11 +470,11 @@ open class PieChartRenderer: NSObject, DataRenderer
                             return
                         }
                         context.setLineWidth(dataSet.valueLineWidth)
-
+                        context.setLineDash(phase: 0, lengths: [4, 2])
                         context.move(to: CGPoint(x: pt0.x, y: pt0.y))
                         context.addLine(to: CGPoint(x: pt1.x, y: pt1.y))
                         context.addLine(to: CGPoint(x: pt2.x, y: pt2.y))
-
+                        context.addEllipse(in: ellipseRect)
                         context.drawPath(using: CGPathDrawingMode.stroke)
                     }
                     
